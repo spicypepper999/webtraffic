@@ -1,0 +1,33 @@
+/* general css */
+body {
+    margin: 0;
+    padding: 0;
+    transition: background-color;
+    font-family: Arial, sans-serif;
+  }
+  canvas {
+    /* width: 80%;
+    height: 80%; */
+    display: block;
+    margin: 0 auto;
+    transition: background-color;
+    border: 2px solid #e3e3e3; /* #e3e3e3 alt color: #fff alt2: #282c34*/
+  }
+  h1 {
+    margin-top: -35px;
+    font-size: 1.4rem;
+    text-align: center;
+  }
+  .arrowKeys {
+    margin-right: 5px;
+    text-align: right;
+  }
+  table {
+    margin-top: -25px;
+  }
+  
+  /* light and dark mode*/
+  [data-theme="light"] { /* Styles for light mode */
+    background-color: #fff;
+    color: #282c34;
+  }
