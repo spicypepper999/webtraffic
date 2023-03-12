@@ -73,11 +73,10 @@ class Node {
     this._x = node.x;
     this._y = node.y;
   }
-  //processObstacle returns true if node is an obstacle to given car and processes transfer to other road, otherwise return false if not an obstacle
-  processObstacle(car) {
+  isObstacle(car) {
     if (this._ruleset[0] == "stop") {
       if (car.speed == 0 || this._currentVehicle == car) {
-        this.transferCar(car);
+        this._currentVehicle = car;
         return false;
       } else {
         return true;
@@ -101,9 +100,6 @@ class Node {
             }
           }
         }
-        if (!blocked || this._currentVehicle == car) {
-          this.transferCar(car);
-        }
         if (this._currentVehicle == car) {
           blocked = false;
         }
@@ -111,26 +107,7 @@ class Node {
       }
     }
   }
-  //if car is next in queue, transfer over to other road according to car's ruleset when it passes over node
-  transferCar(car) {
-    if (this._queue[this._queue.length - 1] == car) {
-      this._currentVehicle = car;
-      if (this.distanceTo(car.road.XYFromPosition(car.position)) <= car.speed) {
-        this._queue.pop();
-        for (let i = 0; i < car.ruleset.length; i += 3) {
-          let node = car.ruleset[i];
-          let nextRoad = car.ruleset[i + 1];
-          let direction = car.ruleset[i + 2];
-          if (node == this) {
-            car.road = nextRoad;
-            car.direction = direction;
-            car.position = nextRoad.positionOfNode(node)[0];
-            //above line might break if having same intersection node in multiple places on a road (ie loop)
-          }
-        }
-      }
-    }
-  }
+
 }
 
 //
@@ -172,7 +149,7 @@ class Road {
   }
   XYFromPosition(position) {
     let node = new Node(0, 0);
-    if (position <= 0) {
+    if (position < 0) {
       node.setXY(this._nodes[0]);
       return node;
     }
@@ -288,10 +265,19 @@ class Car {
     return node;
   }
   updatePosition() {
-    this._position += (this._speed * this._direction);
-    if (this._position > this._road.length() && Object.keys(this._road._roadEnd).length > 0) {
-      this._position -= this._road._roadEnd.length();
+    for (let i = 0; i < this._ruleset.length; i += 3) {
+      let node = this._ruleset[i];
+      let nextRoad = this._ruleset[i + 1];
+      let direction = this._ruleset[i + 2];
+      if (this.checkPath(this._speed * this._direction) == node) {
+        console.log("gfds");
+        this._road = nextRoad;
+        this._direction = direction;
+        this._position = nextRoad.positionOfNode(node)[0];
+        node.queue.pop();
+      }
     }
+    this._position += (this._speed * this._direction);
   }
   //checks if specified distance in front of car is clear of any other cars and intersections, returns the closest object if one is found
   checkPath(distance) {
@@ -322,9 +308,9 @@ class Car {
         return detected;
       }
     }
-
     return detected;
   }
+
   calculateStoppingDistance() {
     let distance = 0;
     distance = (this._speed ** 2) / (this._power * 2);
@@ -348,7 +334,7 @@ class Car {
       this._speed += this._power;
     }
   }
-  processObstacle(car) {
+  isObstacle(car) {
     return true;
   }
 }
@@ -370,20 +356,21 @@ intersect1.ruleset = ["stop"];
 intersect2.roads = [road1, road2];
 intersect2.ruleset = ["yield", road1, -600];
 
-let car1 = new Car(1005, 25, road1, 1, 0.5, 0.01, [road2.nodes[3], road2, -1, road1.nodes[5], road1, 1]);
-let car2 = new Car(1100, 25, road1, 1, 0.5, 0.01, [road1.nodes[0], road1, 1]);
-let car3 = new Car(1250, 25, road1, 1, 0.5, 0.01, [road1.nodes[0], road1, 1]);
-let car4 = new Car(1300, 25, road1, 1, 0.5, 0.01, [road1.nodes[0], road1, 1]);
-let car5 = new Car(1400, 25, road1, 1, 0.5, 0.01, [road2.nodes[3], road2, -1, road1.nodes[5], road1, 1]);
-let car6 = new Car(1500, 25, road1, 1, 0.5, 0.01, [road2.nodes[3], road2, -1, road1.nodes[5], road1, 1]);
-let car7 = new Car(1600, 25, road1, 1, 0.5, 0.01, [road1.nodes[0], road1, 1]);
-let map = { roads: [road1, road2], intersections: [intersect1, intersect2], cars: [car1, car2, car3, car4, car5, car6, car7], sources: []};
+let car1 = new Car(1005, 25, road1, 1, 0.5, 0.01, [intersect1, road2, -1, intersect2, road1, 1]);
+let car2 = new Car(1100, 25, road1, 1, 0.5, 0.01, [intersect1, road1, 1]);
+let car3 = new Car(1250, 25, road1, 1, 0.5, 0.01, [intersect1, road1, 1]);
+let car4 = new Car(1300, 25, road1, 1, 0.5, 0.01, [intersect1, road1, 1]);
+let car5 = new Car(1400, 25, road1, 1, 0.5, 0.01, [intersect1, road2, -1, intersect2, road1, 1]);
+let car6 = new Car(1500, 25, road1, 1, 0.5, 0.01, [intersect1, road2, -1, intersect2, road1, 1]);
+let car7 = new Car(1600, 25, road1, 1, 0.5, 0.01, [intersect1, road1, 1]);
+let map = { roads: [road1, road2], intersections: [intersect1, intersect2], cars: [car1, car2, car3, car4, car5, car6, car7], sources: [] };
 
 // Set up the canvas and context
 let canvas = document.getElementById('game-canvas');
 let context = canvas.getContext('2d');
 canvas.width = window.innerWidth * .9;
 canvas.height = window.innerHeight * .9;
+let counter = 0;
 
 // Set up the game loop
 function gameLoop() {
@@ -432,28 +419,15 @@ function gameLoop() {
     let obstacle = car.checkPath(brakingDistance * car.direction);
     context.fillStyle = "black";
     if (obstacle) {
-      if (obstacle.processObstacle(car)) {
-        if (obstacle instanceof Car) {
-          brakingDistance = (car.calculateStoppingDistanceToCar(obstacle) + 100);
-        }
-        context.fillStyle = "red";
+      if (obstacle.isObstacle(car)) {
         car.brake();
+        context.fillStyle = "red";
+        if (obstacle instanceof Node && obstacle.queue.indexOf(car) == -1) {
+          obstacle.queue.push(car);
+        }
       } else {
         car.accelerate();
         context.fillStyle = "green";
-      }
-      //below is super cringe code
-      if (obstacle instanceof Node && obstacle.queue.indexOf(car) == -1 && obstacle.distanceTo(car.road.XYFromPosition(car.position)) > car.speed && obstacle.type == "intersection") {
-        if (obstacle.ruleset[0] == "yield") {
-          if (obstacle.ruleset[1] == car.road) {
-
-          } else {
-            obstacle.queue.push(car);
-          }
-        }
-        if (obstacle.ruleset[0] == "stop") {
-          obstacle.queue.push(car);
-        }
       }
     } else {
       if (car.speed > (car.road.speedLimit + car.power)) {
@@ -473,6 +447,7 @@ function gameLoop() {
 
   // Request the next frame
   window.requestAnimationFrame(gameLoop);
+  counter++;
 }
 
 // Set up the key listeners
