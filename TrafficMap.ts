@@ -1,0 +1,120 @@
+import { RoadNode } from "./RoadNode.js"
+import { IntersectionRoadNode } from "./IntersectionRoadNode.js"
+import { Car } from "./Car.js"
+import { Road } from "./Road.js"
+
+export class TrafficMap {
+    private _roads;
+    private _intersections;
+    private _cars;
+    private _sources;
+    private _collectors;
+    constructor(roads: Road[], intersections: IntersectionRoadNode[], cars: Car[], sources: RoadNode[], collectors: RoadNode[]) {
+        this._roads = roads;
+        this._intersections = intersections;
+        this._cars = cars;
+    }
+    set roads(value) {
+        this._roads = value;
+    }
+    get roads(): Road[] {
+        return this._roads;
+    }
+    set intersections(value) {
+        this._intersections = value;
+    }
+    get intersections(): IntersectionRoadNode[] {
+        return this._intersections;
+    }
+    set cars(value) {
+        this._cars = value;
+    }
+    get cars(): Car[] {
+        return this._cars;
+    }
+    isObstacle(node: IntersectionRoadNode, car: Car) {
+        if (node.ruleset[0] == "stop") {
+            if (car.speed == 0 || node.currentCar == car) {
+                node.currentCar = car;
+                return false;
+            } else {
+                return true;
+            }
+        }
+        if (node.ruleset[0] == "yield") {
+            let yieldRoad = node.ruleset[1];
+            let yieldDistance = node.ruleset[2];
+            let blocked = false;
+            if (car.road == yieldRoad) {
+                return false;
+            } else {
+                for (let car2 of this.cars) {
+                    if (car2.road == yieldRoad && car2 != car) {
+                        let carDistance = car2.position - yieldRoad.positionOfNode(node)[0];
+                        //code above might break?
+                        if (yieldDistance >= 0 && carDistance <= yieldDistance && carDistance >= 0) {
+                            blocked = true;
+                        }
+                        if (yieldDistance < 0 && carDistance >= yieldDistance && carDistance <= 0) {
+                            blocked = true;
+                        }
+                    }
+                }
+                if (node.currentCar == car) {
+                    blocked = false;
+                }
+                return blocked;
+            }
+        } else {
+            return false;
+        }
+    }
+    checkCarPath(car: Car, distance: number) {
+        let detected;
+        for (let car2 of this.cars) {
+            if ((car2 != car) && (car2.road == car.road)) {
+                if (distance > 0 && (car2.position - car.position) <= distance && (car2.position - car.position) >= 0) {
+                    detected = car;
+                    return detected;
+                } else if (distance < 0 && (car2.position - car.position) >= distance && (car2.position - car.position) <= 0) {
+                    detected = car;
+                    return detected;
+                }
+            }
+        }
+        for (let node of car.road.nodes) {
+            let closestPosition = Number.MAX_VALUE;
+            for (let position of car.road.positionOfNode(node)) {
+                if (Math.abs(position - car.position) < Math.abs(closestPosition)) {
+                    closestPosition = position - car.position;
+                }
+            }
+            if (distance > 0 && closestPosition <= distance && closestPosition >= 0 && node instanceof IntersectionRoadNode) {
+                detected = node;
+                return detected;
+            } else if (distance < 0 && closestPosition >= distance && closestPosition <= 0 && node instanceof IntersectionRoadNode) {
+                detected = node;
+                return detected;
+            }
+        }
+        return detected;
+    }
+    updatePosition(car: Car) {
+        for (let i = 0; i < car.ruleset.length; i += 3) {
+            let node = car.ruleset[i];
+            let nextRoad = car.ruleset[i + 1];
+            let direction = car.ruleset[i + 2];
+            if (this.checkCarPath(car, car.speed * car.direction) == node) {
+                car.road = nextRoad;
+                car.direction = direction;
+                car.position = nextRoad.positionOfNode(node)[0];
+                //above line might break?
+                node.queue.pop();
+            }
+        }
+        car.position += (car.speed * car.direction);
+        if (car.position > car.road.length() && car.road.roadEnd != null) {
+            car.position -= car.road.roadEnd.length();
+        }
+    }
+}
