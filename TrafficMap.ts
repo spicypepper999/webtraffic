@@ -2,6 +2,7 @@ import { RoadNode } from "./RoadNode.js"
 import { IntersectionRoadNode } from "./IntersectionRoadNode.js"
 import { Car } from "./Car.js"
 import { Road } from "./Road.js"
+import { SpecialRoadNode } from "./SpecialRoadNode.js"
 
 export class TrafficMap {
     private _roads;
@@ -9,10 +10,12 @@ export class TrafficMap {
     private _cars;
     private _sources;
     private _collectors;
-    constructor(roads: Road[], intersections: IntersectionRoadNode[], cars: Car[], sources: RoadNode[], collectors: RoadNode[]) {
+    constructor(roads: Road[], intersections: IntersectionRoadNode[], cars: Car[], sources: SpecialRoadNode[], collectors: SpecialRoadNode[]) {
         this._roads = roads;
         this._intersections = intersections;
         this._cars = cars;
+        this._sources = sources;
+        this._collectors = collectors;
     }
     set roads(value) {
         this._roads = value;
@@ -32,7 +35,20 @@ export class TrafficMap {
     get cars(): Car[] {
         return this._cars;
     }
-    isObstacle(node: IntersectionRoadNode, car: Car) {
+    set sources(value) {
+        this._sources = value;
+    }
+    get sources(): SpecialRoadNode[] {
+        return this._sources;
+    }
+    set collectors(value) {
+        this._collectors = value;
+    }
+    get collectors(): SpecialRoadNode[] {
+        return this._collectors;
+    }
+    isObstacle(node: IntersectionRoadNode, car: Car) : boolean{
+        console.log(node.ruleset[0]);
         if (node.ruleset[0] == "stop") {
             if (car.speed == 0 || node.currentCar == car) {
                 node.currentCar = car;
@@ -69,7 +85,7 @@ export class TrafficMap {
             return false;
         }
     }
-    checkCarPath(car: Car, distance: number) {
+    checkCarPath(car: Car, distance: number)  : Car | IntersectionRoadNode | undefined{
         let detected;
         for (let car2 of this.cars) {
             if ((car2 != car) && (car2.road == car.road)) {
@@ -97,9 +113,12 @@ export class TrafficMap {
                 return detected;
             }
         }
+        // if ((car.position + distance) > car.road.length() && car.road.roadEnd != null && detected == undefined) {
+        //     detected = this.checkPath(car.road.roadEnd, 0, (car.position + distance) % car.road.length());
+        // }
         return detected;
     }
-    checkPath(road: Road, position: number, distance: number){
+    checkPath(road: Road, position: number, distance: number) : Car | IntersectionRoadNode | undefined{
         let detected;
         for (let car of this.cars) {
             if (car.road == road) {
@@ -127,6 +146,27 @@ export class TrafficMap {
                 return detected;
             }
         }
+        // if ((position + distance) > road.length() && road.roadEnd != null  && detected == undefined) {
+        //     detected = this.checkPath(road.roadEnd, 0, (position + distance) % road.length());
+        // }
+        return detected;
+    }
+    checkPathForCars(road: Road, position: number, distance: number) : Car | undefined{
+        let detected;
+        for (let car of this.cars) {
+            if (car.road == road) {
+                if (distance > 0 && (car.position - position) <= distance && (car.position - position) >= 0) {
+                    detected = car;
+                    return detected;
+                } else if (distance < 0 && (car.position - position) >= distance && (car.position - position) <= 0) {
+                    detected = car;
+                    return detected;
+                }
+            }
+        }
+        // if ((position + distance) > road.length() && road.roadEnd != null  && detected == undefined) {
+        //     detected = this.checkPathForCars(road.roadEnd, 0, (position + distance) % road.length());
+        // }
         return detected;
     }
     updatePosition(car: Car) {

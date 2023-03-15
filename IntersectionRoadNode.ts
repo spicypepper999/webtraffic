@@ -31,41 +31,7 @@ export class IntersectionRoadNode extends RoadNode {
   get currentCar(): Car | null {
     return this._currentCar;
   }
-  // isObstacle(car: Car) : boolean{
-  //   if (this.ruleset[0] == "stop") {
-  //     if (car.speed == 0 || this.currentCar == car) {
-  //       this.currentCar = car;
-  //       return false;
-  //     } else {
-  //       return true;
-  //     }
-  //   }
-  //   if (this.ruleset[0] == "yield") {
-  //     let yieldRoad = this.ruleset[1];
-  //     let yieldDistance = this.ruleset[2];
-  //     let blocked = false;
-  //     if (car.road == yieldRoad) {
-  //       return false;
-  //     } else {
-  //       for (let car2 of map.cars) {
-  //         if (car2.road == yieldRoad && car2 != car) {
-  //           let carDistance = car2.position - yieldRoad.positionOfNode(this)[0];
-  //           //code above might break?
-  //           if (yieldDistance >= 0 && carDistance <= yieldDistance && carDistance >= 0) {
-  //             blocked = true;
-  //           }
-  //           if (yieldDistance < 0 && carDistance >= yieldDistance && carDistance <= 0) {
-  //             blocked = true;
-  //           }
-  //         }
-  //       }
-  //       if (this.currentCar == car) {
-  //         blocked = false;
-  //       }
-  //       return blocked;
-  //     }
-  //   } else {
-  //     return false;
-  //   }
-  // }
+  get type() : string{
+    return "intersection";
+  }
 }

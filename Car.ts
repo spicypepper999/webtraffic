@@ -90,4 +90,7 @@ export class Car {
   isObstacle(car: Car): boolean {
     return true;
   }
+  get type(){
+    return "car";
+  }
 }

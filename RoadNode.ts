@@ -46,4 +46,7 @@ export class RoadNode {
     isObstacle(car: any): boolean {
         return false;
     }
+    get type() : string | null{
+        return null;
+    }
 }
