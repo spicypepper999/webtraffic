@@ -99,6 +99,36 @@ export class TrafficMap {
         }
         return detected;
     }
+    checkPath(road: Road, position: number, distance: number){
+        let detected;
+        for (let car of this.cars) {
+            if (car.road == road) {
+                if (distance > 0 && (car.position - position) <= distance && (car.position - position) >= 0) {
+                    detected = car;
+                    return detected;
+                } else if (distance < 0 && (car.position - position) >= distance && (car.position - position) <= 0) {
+                    detected = car;
+                    return detected;
+                }
+            }
+        }
+        for (let node of road.nodes) {
+            let closestPosition = Number.MAX_VALUE;
+            for (let position of road.positionOfNode(node)) {
+                if (Math.abs(position - position) < Math.abs(closestPosition)) {
+                    closestPosition = position - position;
+                }
+            }
+            if (distance > 0 && closestPosition <= distance && closestPosition >= 0 && node instanceof IntersectionRoadNode) {
+                detected = node;
+                return detected;
+            } else if (distance < 0 && closestPosition >= distance && closestPosition <= 0 && node instanceof IntersectionRoadNode) {
+                detected = node;
+                return detected;
+            }
+        }
+        return detected;
+    }
     updatePosition(car: Car) {
         for (let i = 0; i < car.ruleset.length; i += 3) {
             let node = car.ruleset[i];
