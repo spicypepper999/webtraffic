@@ -7,7 +7,9 @@ import { TrafficMap } from "./TrafficMap.js"
 //THIS IS WHERE WE INITIALIZE STUFF!!!
 //drawing road
 
-const map = 1;
+const map = 0;
+const minDistance = 100;
+
 if (map == 0){
 
 const intersect1 = new IntersectionRoadNode(600, 600, "yield");
@@ -27,13 +29,17 @@ intersect2.ruleset = ["yield", road1, -200];
 intersect3.ruleset = ["yield", road1, -200];
 intersect4.ruleset = ["yield", road1, -200];
 
+//
+//i dont like the manually setting yield distance vibe 
+//
+
 const car1 = new Car(150, road2, -1, 0, 0.01, 25, [intersect1, road1, 1, intersect2, road3, 1]);
 const car2 = new Car(150, road4, -1, 0, 0.01, 25, [intersect3, road1, 1, intersect4, road5, 1]);
 
 const roads = [road1, road2, road3, road4, road5];
 const intersections = [intersect1, intersect2, intersect3, intersect4]
 const cars = [];
-const events = ["source", 300, road2, -1, 0, 0.01, 25, [intersect1, road1, 1, intersect2, road3, 1], "source", 300, road4, -1, 0, 0.01, 25, [intersect3, road1, 1, intersect2, road3, 1], "collect", road3, 150, 275];
+const events = ["source", 1000, 300, road2, -1, 0, 0.01, 25, [intersect1, road1, 1, intersect2, road3, 1], "source", 1000, 300, road4, -1, 0, 0.01, 25, [intersect3, road1, 1, intersect2, road3, 1], "collect", road3, 150, 275];
 const trafficMap = new TrafficMap(roads, intersections, cars, events);
 
 }
@@ -113,35 +119,24 @@ function gameLoop() {
         context.fill();
     }
 
-    // for (let source of trafficMap.sources) {
-    //     if (trafficMap.checkPathForCars(source.ruleset[1], source.ruleset[0], -250) == undefined) {
-    //         const newCar = new Car(source.ruleset[0], source.ruleset[1], source.ruleset[2], source.ruleset[3], source.ruleset[4], source.ruleset[5], source.ruleset[6]);
-    //         trafficMap.cars.push(newCar);
-    //     }
-    // }
-
-    // for (let collector of trafficMap.collectors) {
-    //     let car = trafficMap.checkPathForCars(collector.ruleset[0], collector.ruleset[1], collector.ruleset[2]);
-    //     if (car instanceof Car){
-    //         trafficMap.cars.splice(trafficMap.cars.indexOf(car), 1);
-    //         carCounter1++;
-    //     }
-    // }
-
     for (let i = 0; i < trafficMap.events.length; i += 0) {
         if (trafficMap.events[i] == "source") {
-            const position = trafficMap.events[i + 1];
-            const road = trafficMap.events[i + 2];
-            const direction = trafficMap.events[i + 3];
-            const speed = trafficMap.events[i + 4];
-            const power = trafficMap.events[i + 5];
-            const size = trafficMap.events[i + 6];
-            const ruleset = trafficMap.events[i + 7];
+            const timer = trafficMap.events[i + 1];
+            const position = trafficMap.events[i + 2];
+            const road = trafficMap.events[i + 3];
+            const direction = trafficMap.events[i + 4];
+            const speed = trafficMap.events[i + 5];
+            const power = trafficMap.events[i + 6];
+            const size = trafficMap.events[i + 7];
+            const ruleset = trafficMap.events[i + 8];
             const newCar = new Car(position, road, direction, speed, power, size, ruleset);
-            if (trafficMap.checkPathForCars(road, position, -250) == undefined){
+            if (trafficMap.checkPathForCars(road, position, -100) == undefined && counter % timer == 0){
+                //
+                //ARBITRARY NUMBER ALERT!!!
+                //
             trafficMap.cars.push(newCar);
             }
-            i += 8;
+            i += 9;
         } else if (trafficMap.events[i] == "collect") {
             const car = trafficMap.checkPathForCars(trafficMap.events[i + 1], trafficMap.events[i + 2], trafficMap.events[i + 3]);
             if (car instanceof Car) {
@@ -155,20 +150,12 @@ function gameLoop() {
 
     // Draw cars
     for (let car of trafficMap.cars) {
-        let brakingDistance = (car.calculateStoppingDistance() + 100);
+        let brakingDistance = (car.calculateStoppingDistance() + minDistance);
         let obstacle = trafficMap.checkCarPath(car, brakingDistance * car.direction);
         context.fillStyle = "black";
-        if (obstacle instanceof Car) {
+        if(trafficMap.isObstacle(obstacle, car)){
             car.brake();
             context.fillStyle = "red";
-        } else if (obstacle instanceof IntersectionRoadNode) {
-            if (trafficMap.isObstacle(obstacle, car)) {
-                car.brake();
-                context.fillStyle = "red";
-            } else {
-                car.accelerate();
-                context.fillStyle = "green";
-            }
         } else {
             if (car.speed > (car.road.speedLimit + car.power)) {
                 car.brake();
