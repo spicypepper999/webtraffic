@@ -6,13 +6,14 @@ import { TrafficMap } from "./TrafficMap.js"
 
 //THIS IS WHERE WE INITIALIZE STUFF!!!
 //drawing road
+
+const map = 1;
+if (map == 0){
+
 const intersect1 = new IntersectionRoadNode(600, 600, "yield");
 const intersect2 = new IntersectionRoadNode(800, 800, "yield");
 const intersect3 = new IntersectionRoadNode(1000, 600, "yield");
 const intersect4 = new IntersectionRoadNode(800, 400, "yield");
-// const source1 = new SpecialRoadNode(300, 600, "source", []);
-// const source2 = new SpecialRoadNode(1300, 600, "source", []);
-// const collector1 = new SpecialRoadNode(800, 1100, "collector", []);
 const road1 = new Road([intersect1, intersect4, intersect3, intersect2, intersect1], 0.5, "yellow");
 road1.roadEnd = road1;
 
@@ -25,9 +26,6 @@ intersect1.ruleset = ["yield", road1, -200];
 intersect2.ruleset = ["yield", road1, -200];
 intersect3.ruleset = ["yield", road1, -200];
 intersect4.ruleset = ["yield", road1, -200];
-// source1.ruleset = [road2.positionOfNode(source1)[0], road2, -1, 0, 0.01, 25, [intersect1, road1, 1, intersect2, road3, 1]];
-// source2.ruleset = [road4.positionOfNode(source2)[0], road4, -1, 0, 0.01, 25, [intersect3, road1, 1, intersect2, road3, 1]];
-// collector1.ruleset = [road3, 150, 275];
 
 const car1 = new Car(150, road2, -1, 0, 0.01, 25, [intersect1, road1, 1, intersect2, road3, 1]);
 const car2 = new Car(150, road4, -1, 0, 0.01, 25, [intersect3, road1, 1, intersect4, road5, 1]);
@@ -37,6 +35,34 @@ const intersections = [intersect1, intersect2, intersect3, intersect4]
 const cars = [];
 const events = ["source", 300, road2, -1, 0, 0.01, 25, [intersect1, road1, 1, intersect2, road3, 1], "source", 300, road4, -1, 0, 0.01, 25, [intersect3, road1, 1, intersect2, road3, 1], "collect", road3, 150, 275];
 const trafficMap = new TrafficMap(roads, intersections, cars, events);
+
+}
+if (map == 1){
+
+    const intersect1 = new IntersectionRoadNode(500, 300, []);
+    const intersect2 = new IntersectionRoadNode(500, 1000, []);
+    const road1 = new Road([intersect1, new RoadNode(700, 300), new RoadNode(1100, 700), new RoadNode(1300, 900), new RoadNode(1300, 1000), intersect2, intersect1], 2, "blue")
+    road1.roadEnd = road1;
+    
+    const road2 = new Road([intersect2, new RoadNode(200, 1000), new RoadNode(200, 300), intersect1], 1, "red");
+    
+    intersect1.ruleset = ["stop"];
+    intersect2.ruleset = ["yield", road1, -600];
+    
+    const car1 = new Car(1005, road1, 1, 0.5, 0.01, 25, [intersect1, road2, -1, intersect2, road1, 1]);
+    const car2 = new Car(1100, road1, 1, 0.5, 0.01, 25, [intersect1, road1, 1]);
+    const car3 = new Car(1250, road1, 1, 0.5, 0.01, 25, [intersect1, road1, 1]);
+    const car4 = new Car(1300, road1, 1, 0.5, 0.01, 25, [intersect1, road1, 1]);
+    const car5 = new Car(1400, road1, 1, 0.5, 0.01, 25, [intersect1, road2, -1, intersect2, road1, 1]);
+    const car6 = new Car(1500, road1, 1, 0.5, 0.01, 25, [intersect1, road2, -1, intersect2, road1, 1]);
+    const car7 = new Car(1600, road1, 1, 0.5, 0.01, 25, [intersect1, road1, 1]);
+    const cars = [car1, car2, car3, car4, car5, car6, car7];
+    const roads = [road1, road2];
+    const intersections = [intersect1, intersect2];
+    const events = [];
+    const trafficMap = new TrafficMap(roads, intersections, cars, events);
+
+}
 
 // Set up the canvas and context
 let canvas = document.getElementById('game-canvas');

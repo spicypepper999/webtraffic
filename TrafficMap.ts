@@ -55,17 +55,8 @@ export class TrafficMap {
             if (car.road == yieldRoad) {
                 return false;
             } else {
-                for (let car2 of this.cars) {
-                    if (car2.road == yieldRoad && car2 != car) {
-                        let carDistance = car2.position - yieldRoad.positionOfNode(node)[0];
-                        //code above might break?
-                        if (yieldDistance >= 0 && carDistance <= yieldDistance && carDistance >= 0) {
-                            blocked = true;
-                        }
-                        if (yieldDistance < 0 && carDistance >= yieldDistance && carDistance <= 0) {
-                            blocked = true;
-                        }
-                    }
+                if((this.checkPathForCars(yieldRoad, yieldRoad.positionOfNode(node)[0], yieldDistance) != undefined)){
+                    blocked = true;
                 }
                 if (node.currentCar == car) {
                     blocked = false;
@@ -107,6 +98,9 @@ export class TrafficMap {
         if ((car.position + distance) > car.road.length() && car.road.roadEnd != null && detected == undefined) {
             detected = this.checkPath(car.road.roadEnd, 0, (car.position + distance) % car.road.length());
         }
+        if((car.position + distance) < 0 && car.road.roadStart != null && detected == undefined) {
+            detected = this.checkPath(car.road.roadStart, car.road.roadStart.length(), car.position + distance);
+        }
         return detected;
     }
     checkPath(road: Road, position: number, distance: number) : Car | IntersectionRoadNode | undefined{
@@ -140,6 +134,9 @@ export class TrafficMap {
         if ((position + distance) > road.length() && road.roadEnd != null  && detected == undefined) {
             detected = this.checkPath(road.roadEnd, 0, (position + distance) % road.length());
         }
+        if ((position + distance) < 0 && road.roadStart != null  && detected == undefined) {
+            detected = this.checkPath(road.roadStart, road.roadStart.length(), position + distance);
+        }
         return detected;
     }
     checkPathForCars(road: Road, position: number, distance: number) : Car | undefined{
@@ -157,6 +154,9 @@ export class TrafficMap {
         }
         if ((position + distance) > road.length() && road.roadEnd != null  && detected == undefined) {
             detected = this.checkPathForCars(road.roadEnd, 0, (position + distance) % road.length());
+        }
+        if ((position + distance) < 0 && road.roadStart != null  && detected == undefined) {
+            detected = this.checkPathForCars(road.roadStart, road.roadStart.length(), position + distance);
         }
         return detected;
     }
