@@ -3,14 +3,18 @@ import { RoadNode } from "./RoadNode.js"
 export class Road {
   private _nodes: any;
   private _roadEnd: Road | null;
+  private _roadStart: Road | null;
   private _speedLimit: number;
   private _color: string;
+
+//make roadStart and roadEnd work when looping
 
   constructor(nodes: any, speedLimit: number, color: string) {
     this._nodes = nodes;
     this._speedLimit = speedLimit;
     this._color = color;
     this._roadEnd = null;
+    this._roadStart = null;
   }
   set nodes(value) {
     this._nodes = value;
@@ -19,10 +23,26 @@ export class Road {
     return this._nodes;
   }
   set roadEnd(value) {
-    this._roadEnd = value;
+    if (value instanceof Road) {
+      this._roadEnd = value;
+      if (value.roadStart == null) {
+        value.roadStart = this;
+      }
+    }
   }
   get roadEnd(): Road | null {
     return this._roadEnd;
+  }
+  set roadStart(value: Road | null) {
+    if (value instanceof Road) {
+      this._roadStart = value;
+      if (value.roadEnd == null) {
+        value.roadEnd = this;
+      }
+    }
+  }
+  get roadStart(): Road | null {
+    return this._roadStart;
   }
   set speedLimit(value) {
     this._speedLimit = value;
