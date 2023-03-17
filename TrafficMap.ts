@@ -8,12 +8,14 @@ export class TrafficMap {
     private _intersections;
     private _cars;
     private _events;
+    private _counter;
 
     constructor(roads: Road[], intersections: IntersectionRoadNode[], cars: Car[], events: any) {
         this._roads = roads;
         this._intersections = intersections;
         this._cars = cars;
         this._events = events;
+        this._counter = 0;
     }
     set roads(value) {
         this._roads = value;
@@ -39,13 +41,19 @@ export class TrafficMap {
     get events(): any {
         return this._events;
     }
+    set counter(value) {
+        this._counter = value;
+    }
+    get counter(): number {
+        return this._counter;
+    }
     isObstacle(obstacle: IntersectionRoadNode | Car, car: Car): boolean {
         if (obstacle instanceof Car) {
             return true;
         }
         if (obstacle instanceof IntersectionRoadNode) {
             if (obstacle.ruleset[0] == "stop") {
-                if (car.speed == 0 || obstacle.currentCar == car) {
+                if ((car.speed == 0 && obstacle.currentCar == undefined) || obstacle.currentCar == car) {
                     obstacle.currentCar = car;
                     return false;
                 } else {
@@ -59,13 +67,13 @@ export class TrafficMap {
                 if (car.road == yieldRoad) {
                     return false;
                 } else {
-                    if ((this.checkPathForCars(yieldRoad, yieldRoad.positionOfNode(obstacle)[0], yieldDistance) != undefined)) {
-                        blocked = true;
+                    if((this.checkPathForCars(yieldRoad, yieldRoad.positionOfNode(obstacle)[0], yieldDistance) == undefined && obstacle.currentCar == undefined) || obstacle.currentCar == car){
+                        obstacle.currentCar = car;
+                        return false;
+                    }else{
+                        return true;
                     }
-                    if (obstacle.currentCar == car) {
-                        blocked = false;
-                    }
-                    return blocked;
+                   // return blocked;
                 }
             } else {
                 return false;
@@ -175,7 +183,10 @@ export class TrafficMap {
                 car.direction = direction;
                 car.position = nextRoad.positionOfNode(node)[0];
                 //above line might break?
-                node.queue.pop();
+
+//                node.queue.pop();
+                node.currentCar = undefined;
+
             }
         }
         car.position += (car.speed * car.direction);

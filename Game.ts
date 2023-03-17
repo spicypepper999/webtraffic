@@ -12,22 +12,22 @@ const minDistance = 100;
 
 if (map == 0){
 
-const intersect1 = new IntersectionRoadNode(600, 600, "yield");
-const intersect2 = new IntersectionRoadNode(800, 800, "yield");
-const intersect3 = new IntersectionRoadNode(1000, 600, "yield");
-const intersect4 = new IntersectionRoadNode(800, 400, "yield");
-const road1 = new Road([intersect1, intersect4, intersect3, intersect2, intersect1], 0.5, "yellow");
+const intersect1 = new IntersectionRoadNode(400, 600, []);
+const intersect2 = new IntersectionRoadNode(600, 800, []);
+const intersect3 = new IntersectionRoadNode(800, 600, []);
+const intersect4 = new IntersectionRoadNode(600, 400, []);
+const road1 = new Road([intersect1, intersect4, intersect3, intersect2, intersect1], 0.75, "yellow");
 road1.roadEnd = road1;
 
-const road2 = new Road([intersect1, new RoadNode(300, 600)], 1, "blue");
-const road3 = new Road([intersect2, new RoadNode(800, 1100)], 1, "blue");
-const road4 = new Road([intersect3, new RoadNode(1300, 600)], 1, "blue");
-const road5 = new Road([intersect4, new RoadNode(800, 100)], 1, "blue");
+const road2 = new Road([intersect1, new RoadNode(100, 600)], 0.75, "blue");
+const road3 = new Road([intersect2, new RoadNode(600, 1100)], 0.75, "blue");
+const road4 = new Road([intersect3, new RoadNode(1100, 600)], 0.75, "blue");
+const road5 = new Road([intersect4, new RoadNode(600, 100)], 0.75, "blue");
 
-intersect1.ruleset = ["yield", road1, -200];
-intersect2.ruleset = ["yield", road1, -200];
-intersect3.ruleset = ["yield", road1, -200];
-intersect4.ruleset = ["yield", road1, -200];
+intersect1.ruleset = ["yield", road1, -220];
+intersect2.ruleset = ["yield", road1, -220];
+intersect3.ruleset = ["yield", road1, -220];
+intersect4.ruleset = ["yield", road1, -220];
 
 //
 //i dont like the manually setting yield distance vibe 
@@ -37,10 +37,24 @@ const car1 = new Car(150, road2, -1, 0, 0.01, 25, [intersect1, road1, 1, interse
 const car2 = new Car(150, road4, -1, 0, 0.01, 25, [intersect3, road1, 1, intersect4, road5, 1]);
 
 const roads = [road1, road2, road3, road4, road5];
-const intersections = [intersect1, intersect2, intersect3, intersect4]
+const intersections = [intersect1, intersect2, intersect3, intersect4];
 const cars = [];
-const events = ["source", 1000, 300, road2, -1, 0, 0.01, 25, [intersect1, road1, 1, intersect2, road3, 1], "source", 1000, 300, road4, -1, 0, 0.01, 25, [intersect3, road1, 1, intersect2, road3, 1], "collect", road3, 150, 275];
-const trafficMap = new TrafficMap(roads, intersections, cars, events);
+const events = ["source", 500, 300, road2, -1, 0, 0.01, 25, [intersect1, road1, 1, intersect2, road3, 1], "source", 500, 300, road4, -1, 0, 0.01, 25, [intersect3, road1, 1, intersect2, road3, 1], "source", 500, 300, road5, -1, 0, 0.01, 25, [intersect4, road1, 1, intersect2, road3, 1], "collect", road3, 150, 275];
+const trafficMap1 = new TrafficMap(roads, intersections, cars, events);
+
+const intersect5 = new IntersectionRoadNode(1700, 600, ["stop"]);
+const road6 = new Road([intersect5, new RoadNode(1400, 600)], 0.75, "blue");
+const road7 = new Road([intersect5, new RoadNode(1700, 900)], 0.75, "blue");
+const road8 = new Road([intersect5, new RoadNode(2000, 600)], 0.75, "blue");
+const road9 = new Road([intersect5, new RoadNode(1700, 300)], 0.75, "blue");
+
+const roads2 = [road6, road7, road8, road9];
+const intersections2 = [intersect5];
+const cars2 = [];
+const events2 = ["source", 500, 300, road6, -1, 0, 0.01, 25, [intersect5, road7, 1], "source", 500, 300, road8, -1, 0, 0.01, 25, [intersect5, road7, 1], "source", 500, 300, road9, -1, 0, 0.01, 25, [intersect5, road7, 1], "collect", road7, 150, 275];
+const trafficMap2 = new TrafficMap(roads2, intersections2, cars2, events2);
+
+const trafficMaps = [trafficMap1, trafficMap2];
 
 }
 if (map == 1){
@@ -67,6 +81,7 @@ if (map == 1){
     const intersections = [intersect1, intersect2];
     const events = [];
     const trafficMap = new TrafficMap(roads, intersections, cars, events);
+    const trafficMaps = [trafficMap];
 
 }
 
@@ -76,7 +91,12 @@ let context = canvas.getContext('2d');
 canvas.width = window.innerWidth * .9;
 canvas.height = window.innerHeight * .9;
 let counter = 0;
-let carCounter1 = 0;
+
+let shittyCounter = 0;
+//this will be removed
+
+// let carCounter1 = 0;
+// let carCounter2 = 0;
 
 // Set up the game loop
 function gameLoop() {
@@ -87,6 +107,10 @@ function gameLoop() {
     // Draw ground
     context.fillStyle = "lightgreen";
     context.fillRect(0, 0, canvas.width, canvas.height);
+
+
+    for(let trafficMap of trafficMaps){
+        shittyCounter++;
 
     // Draw roads
     for (let road of trafficMap.roads) {
@@ -141,7 +165,7 @@ function gameLoop() {
             const car = trafficMap.checkPathForCars(trafficMap.events[i + 1], trafficMap.events[i + 2], trafficMap.events[i + 3]);
             if (car instanceof Car) {
                 trafficMap.cars.splice(trafficMap.cars.indexOf(car), 1);
-                carCounter1++;
+                trafficMap.counter++;
             }
             i += 4;
         }
@@ -176,7 +200,17 @@ function gameLoop() {
     context.fillStyle = "black";
     context.beginPath();
     context.font = "48px serif";
-    context.fillText(carCounter1, 10, 50);
+
+    // context.fillText(carCounter1, 10, 50);
+    // context.fillText(carCounter2, 1200, 50);
+
+    if(shittyCounter % 2 == 0){
+    context.fillText(trafficMap.counter, 1200, 50);
+    }else{
+    context.fillText(trafficMap.counter, 10, 50);
+    }
+
+}
 
     // Request the next frame
     window.requestAnimationFrame(gameLoop);

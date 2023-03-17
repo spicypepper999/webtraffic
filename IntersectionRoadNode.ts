@@ -5,13 +5,13 @@ export class IntersectionRoadNode extends RoadNode {
 
   private _ruleset: any;
   private _queue: Car[];
-  private _currentCar: Car | null;
+  private _currentCar: Car | undefined;
 
   constructor(x: number, y: number, ruleset: any) {
     super(x, y);
     this._ruleset = ruleset;
     this._queue = [];
-    this._currentCar = null;
+    this._currentCar = undefined;
   }
   set ruleset(value) {
     this._ruleset = value;
@@ -28,7 +28,7 @@ export class IntersectionRoadNode extends RoadNode {
   set currentCar(value) {
     this._currentCar = value;
   }
-  get currentCar(): Car | null {
+  get currentCar(): Car | undefined {
     return this._currentCar;
   }
   get type() : string{
