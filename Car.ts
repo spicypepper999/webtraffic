@@ -60,9 +60,12 @@ export class Car {
   get ruleset(): any {
     return this._ruleset;
   }
-  getXY() {
-    let node = this.road.XYFromPosition(this.position);
-    return node;
+  getXYDir() {
+    let XYDir = this.road.XYDirFromPosition(this.position);
+    if(this._direction == 1){
+      XYDir[1] = XYDir[1] - Math.PI;
+    }
+    return XYDir;
   }
   calculateStoppingDistance() {
     let distance = 0;

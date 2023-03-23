@@ -86,11 +86,14 @@ if (map == 1){
 }
 
 // Set up the canvas and context
-let canvas = document.getElementById('game-canvas');
-let context = canvas.getContext('2d');
+const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
+const context = canvas.getContext('2d') as CanvasRenderingContext2D;
 canvas.width = window.innerWidth * .9;
 canvas.height = window.innerHeight * .9;
 let counter = 0;
+
+const image = new Image();
+image.src = './carImage.png';
 
 let shittyCounter = 0;
 //this will be removed
@@ -102,6 +105,7 @@ let shittyCounter = 0;
 function gameLoop() {
 
     // Clear the canvas
+    context.setTransform(1, 0, 0, 1, 0, 0);
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw ground
@@ -191,10 +195,13 @@ function gameLoop() {
         }
 
         trafficMap.updatePosition(car);
-        let carNode = car.getXY();
+        let carXYDir = car.getXYDir();
         context.beginPath();
-        context.fillRect(carNode.x - (car.size / 2), carNode.y - (car.size / 2), car.size, car.size);
-        context.fill();
+        context.translate(carXYDir[0].x, carXYDir[0].y);
+       context.rotate(carXYDir[1]);
+       context.fillRect((car.size / 2)*-1, (car.size / 2)*-1, car.size, car.size);
+       context.drawImage(image, ((car.size / 2)*-1) - 10, (car.size / 2)*-1, car.size + 10, car.size);
+       context.setTransform(1, 0, 0, 1, 0, 0);
     }
 
     context.fillStyle = "black";

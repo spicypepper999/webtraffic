@@ -56,23 +56,29 @@ export class Road {
   get color(): string {
     return this._color;
   }
-  XYFromPosition(position: number) {
+  XYDirFromPosition(position: number): [RoadNode, number] {
     let node = new RoadNode(0, 0);
+    let dir = 0;
     if (position < 0) {
       node.setXYNode(this.nodes[0]);
-      return node;
+      dir = Math.atan2(this.nodes[1].y - this.nodes[0].y, this.nodes[1].x - this.nodes[0].x);
+      return [node, dir];
     }
     if (position > this.length()) {
       if (this.roadEnd != null) {
-        node.setXYNode(this.roadEnd.XYFromPosition(position - this.length()));
-        return node;
+        let XYDir = this.roadEnd.XYDirFromPosition(position - this.length());
+        node.setXYNode(XYDir[0]);
+        dir = XYDir[1];
+        return [node, dir];
       } else {
         node.setXYNode(this.nodes[this.nodes.length - 1]);
-        return node;
+        dir = Math.atan2(this.nodes[this.nodes.length - 1].y - this.nodes[this.nodes.length - 2].y, this.nodes[this.nodes.length - 1].x - this.nodes[this.nodes.length - 2].x);
+        return [node, dir];
       }
     }
     let distanceLeft = position;
     node.setXYNode(this.nodes[0]);
+    dir = Math.atan2(this.nodes[1].y - this.nodes[0].y, this.nodes[1].x - this.nodes[0].x);
     for (let i = 1; i < this.nodes.length && distanceLeft > 0; i++) {
       if (distanceLeft < node.distanceTo(this.nodes[i])) {
         let dx = (Math.cos(node.directionTo(this.nodes[i])) * distanceLeft);
@@ -80,12 +86,14 @@ export class Road {
         dx = node.x - dx;
         dy = node.y - dy;
         node = new RoadNode(dx, dy);
-        return node;
+        dir = Math.atan2(this.nodes[i].y - this.nodes[i-1].y, this.nodes[i].x - this.nodes[i-1].x);
+        return [node, dir];
       }
       distanceLeft -= node.distanceTo(this.nodes[i]);
       node.setXYNode(this.nodes[i]);
+      dir = Math.atan2(this.nodes[i].y - this.nodes[i-1].y, this.nodes[i].x - this.nodes[i-1].x);
     }
-    return node;
+    return [node, dir];
   }
   length() {
     let length = 0;

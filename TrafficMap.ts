@@ -183,10 +183,7 @@ export class TrafficMap {
                 car.direction = direction;
                 car.position = nextRoad.positionOfNode(node)[0];
                 //above line might break?
-
-//                node.queue.pop();
                 node.currentCar = undefined;
-
             }
         }
         car.position += (car.speed * car.direction);
