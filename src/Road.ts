@@ -1,4 +1,5 @@
 import { RoadNode } from "./RoadNode.js"
+import { Car } from "./Car.js"
 
 export class Road {
   private _nodes: any;
@@ -6,6 +7,7 @@ export class Road {
   private _roadStart: Road | null;
   private _speedLimit: number;
   private _color: string;
+  private _cars: Car[];
 
 //make roadStart and roadEnd work when looping
 
@@ -15,6 +17,7 @@ export class Road {
     this._color = color;
     this._roadEnd = null;
     this._roadStart = null;
+    this._cars = [];
   }
   set nodes(value) {
     this._nodes = value;
@@ -55,6 +58,12 @@ export class Road {
   }
   get color(): string {
     return this._color;
+  }
+  set cars(value) {
+    this._cars = value;
+  }
+  get cars(): Car[] {
+    return this._cars;
   }
   XYDirFromPosition(position: number): [RoadNode, number] {
     let node = new RoadNode(0, 0);

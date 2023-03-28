@@ -17,6 +17,7 @@ export class Car {
     this._power = power;
     this._size = size;
     this._ruleset = ruleset;
+    this._road.cars.push(this);
   }
   set position(value) {
     this._position = value;
@@ -31,7 +32,12 @@ export class Car {
     return this._size;
   }
   set road(value) {
+    if (this._road.cars.indexOf(this) != -1 && this._road != value) {
+      this._road.cars.splice(this._road.cars.indexOf(this), 1);
+    }
     this._road = value;
+    if (this._road.cars.indexOf(this) == -1)
+      this._road.cars.push(this);
   }
   get road(): Road {
     return this._road;
@@ -62,7 +68,7 @@ export class Car {
   }
   getXYDir() {
     let XYDir = this.road.XYDirFromPosition(this.position);
-    if(this._direction == 1){
+    if (this._direction == 1) {
       XYDir[1] = XYDir[1] - Math.PI;
     }
     return XYDir;
@@ -93,7 +99,7 @@ export class Car {
   isObstacle(car: Car): boolean {
     return true;
   }
-  get type(){
+  get type() {
     return "car";
   }
 }

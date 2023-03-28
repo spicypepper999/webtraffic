@@ -82,8 +82,8 @@ export class TrafficMap {
     }
     checkCarPath(car: Car, distance: number): Car | IntersectionRoadNode | undefined {
         let detected;
-        for (let car2 of this.cars) {
-            if ((car2 != car) && (car2.road == car.road)) {
+        for (let car2 of car.road.cars) {
+            if ((car2 != car)) {
                 if (distance > 0 && (car2.position - car.position) <= distance && (car2.position - car.position) >= 0) {
                     detected = car;
                     return detected;
@@ -118,7 +118,7 @@ export class TrafficMap {
     }
     checkPath(road: Road, position: number, distance: number): Car | IntersectionRoadNode | undefined {
         let detected;
-        for (let car of this.cars) {
+        for (let car of road.cars) {
             if (car.road == road) {
                 if (distance > 0 && (car.position - position) <= distance && (car.position - position) >= 0) {
                     detected = car;
@@ -154,7 +154,7 @@ export class TrafficMap {
     }
     checkPathForCars(road: Road, position: number, distance: number): Car | undefined {
         let detected;
-        for (let car of this.cars) {
+        for (let car of road.cars) {
             if (car.road == road) {
                 if (distance > 0 && (car.position - position) <= distance && (car.position - position) >= 0) {
                     detected = car;

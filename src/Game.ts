@@ -33,8 +33,8 @@ intersect4.ruleset = ["yield", road1, -220];
 //i dont like the manually setting yield distance vibe 
 //
 
-const car1 = new Car(150, road2, -1, 0, 0.01, 25, [intersect1, road1, 1, intersect2, road3, 1]);
-const car2 = new Car(150, road4, -1, 0, 0.01, 25, [intersect3, road1, 1, intersect4, road5, 1]);
+//const car1 = new Car(150, road2, -1, 0, 0.01, 25, [intersect1, road1, 1, intersect2, road3, 1]);
+//const car2 = new Car(150, road4, -1, 0, 0.01, 25, [intersect3, road1, 1, intersect4, road5, 1]);
 
 const roads = [road1, road2, road3, road4, road5];
 const intersections = [intersect1, intersect2, intersect3, intersect4];
@@ -157,24 +157,24 @@ function gameLoop() {
             const power = trafficMap.events[i + 6];
             const size = trafficMap.events[i + 7];
             const ruleset = trafficMap.events[i + 8];
-            const newCar = new Car(position, road, direction, speed, power, size, ruleset);
             if (trafficMap.checkPathForCars(road, position, -100) == undefined && counter % timer == 0){
                 //
                 //ARBITRARY NUMBER ALERT!!!
                 //
+            const newCar = new Car(position, road, direction, speed, power, size, ruleset);
             trafficMap.cars.push(newCar);
             }
             i += 9;
         } else if (trafficMap.events[i] == "collect") {
             const car = trafficMap.checkPathForCars(trafficMap.events[i + 1], trafficMap.events[i + 2], trafficMap.events[i + 3]);
             if (car instanceof Car) {
+                car.road.cars.splice(car.road.cars.indexOf(car), 1);
                 trafficMap.cars.splice(trafficMap.cars.indexOf(car), 1);
                 trafficMap.counter++;
             }
             i += 4;
         }
     }
-
 
     // Draw cars
     for (let car of trafficMap.cars) {
