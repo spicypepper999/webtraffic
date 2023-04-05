@@ -1,23 +1,23 @@
-import { Road } from "./Road.js"
+import { Lane } from "./Lane.js"
 
 export class Car {
   private _position: number;
-  private _road: Road;
+  private _lane: Lane;
   private _direction: number;
   private _speed: number;
   private _power: number;
   private _size: number;
   private _ruleset: any;
 
-  constructor(position: number, road: Road, direction: number, speed: number, power: number, size: number, ruleset: any) {
+  constructor(position: number, lane: Lane, direction: number, speed: number, power: number, size: number, ruleset: any) {
     this._position = position;
-    this._road = road;
+    this._lane = lane;
     this._direction = direction;
     this._speed = speed;
     this._power = power;
     this._size = size;
     this._ruleset = ruleset;
-    this._road.cars.push(this);
+    this._lane.cars.push(this);
   }
   set position(value) {
     this._position = value;
@@ -31,16 +31,16 @@ export class Car {
   get size(): number {
     return this._size;
   }
-  set road(value) {
-    if (this._road.cars.indexOf(this) != -1 && this._road != value) {
-      this._road.cars.splice(this._road.cars.indexOf(this), 1);
+  set lane(value) {
+    if (this._lane.cars.indexOf(this) != -1 && this._lane != value) {
+      this._lane.cars.splice(this._lane.cars.indexOf(this), 1);
     }
-    this._road = value;
-    if (this._road.cars.indexOf(this) == -1)
-      this._road.cars.push(this);
+    this._lane = value;
+    if (this._lane.cars.indexOf(this) == -1)
+      this._lane.cars.push(this);
   }
-  get road(): Road {
-    return this._road;
+  get lane(): Lane {
+    return this._lane;
   }
   set direction(value) {
     this._direction = value;
@@ -67,7 +67,7 @@ export class Car {
     return this._ruleset;
   }
   getXYDir() {
-    let XYDir = this.road.XYDirFromPosition(this.position);
+    let XYDir = this.lane.XYDirFromPosition(this.position);
     if (this._direction == 1) {
       XYDir[1] = XYDir[1] - Math.PI;
     }
@@ -92,7 +92,7 @@ export class Car {
     }
   }
   accelerate() {
-    if (this.speed < this.road.speedLimit) {
+    if (this.speed < this.lane.speedLimit) {
       this.speed += this.power;
     }
   }
