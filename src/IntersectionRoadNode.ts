@@ -4,13 +4,11 @@ import { Car } from "./Car.js"
 export class IntersectionRoadNode extends RoadNode {
 
   private _ruleset: any;
-  private _queue: Car[];
   private _currentCar: Car | undefined;
 
   constructor(x: number, y: number, ruleset: any) {
     super(x, y);
     this._ruleset = ruleset;
-    this._queue = [];
     this._currentCar = undefined;
   }
   set ruleset(value) {
@@ -18,12 +16,6 @@ export class IntersectionRoadNode extends RoadNode {
   }
   get ruleset(): any {
     return this._ruleset;
-  }
-  set queue(value) {
-    this._queue = value;
-  }
-  get queue(): Car[] {
-    return this._queue;
   }
   set currentCar(value) {
     this._currentCar = value;

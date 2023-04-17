@@ -86,9 +86,10 @@ if (map == 1) {
 if (map == 2) {
     //const intersect1 = new IntersectionRoadNode();
     //const road1 = new Road();
-    const roadGroup1 = new Road([new RoadNode(400, 400), new RoadNode(600, 200), new RoadNode(700, 200), new RoadNode(800, 600), new RoadNode(1000, 600), new RoadNode(1000, 800), new RoadNode(600, 800), new RoadNode(400, 600)], 2, 50, 2, "blue");
+    const road1 = new Road([new RoadNode(400, 400), new RoadNode(600, 200), new RoadNode(700, 200), new RoadNode(800, 600), new RoadNode(1000, 600), new RoadNode(1000, 800), new RoadNode(600, 800), new RoadNode(400, 600)], 2, 50, 2, "blue");
+    const road2 = new Road([new RoadNode(800, 800), new RoadNode(800, 1100), new RoadNode(1200, 1100)], 2, 50, 2, "red");
     const cars = [];
-    const roads = roadGroup1.lanes;
+    const roads = road1.lanes.concat(road2.lanes);
     const intersections = [];
     const events = [];
     const trafficMap = new TrafficMap(roads, intersections, cars, events);
